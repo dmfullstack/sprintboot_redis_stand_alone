@@ -1,5 +1,5 @@
 # SpringBoot 整合redis 单机版
-
+**——主要为了了解下位图操作**
 ---
 ## redis安装
 摘自 [Linux下redis安装与使用](https://www.cnblogs.com/codersay/p/4301677.html)
