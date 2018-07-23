@@ -1,9 +1,10 @@
 # SpringBoot 整合redis 单机版
 
 ---
-## redis安装
+## 一、redis安装
 摘自 [Linux下redis安装与使用](https://www.cnblogs.com/codersay/p/4301677.html)
 
+###①普通安装
 redis官网： http://www.redis.io/
 
 最新版本： **4.0.10**
@@ -48,9 +49,27 @@ $ ./redis-cli
   修改redis.conf
   requirepass redis123
 
+###②docker安装
+
+* 安装docker
+* 安装redis镜像
+````
+$ dcoker pull redis
+启动服务 自定义redis.config
+$ docker run -p 6379:6379 -v $PWD/data:/data -v $PWD/conf/redis.conf:/home/docker/redis/conf/redis.conf --privileged=true --name redis-S -d redis redis-server /home/docker/redis/conf/redis.conf --requirepass "docker-redis"
+    命令说明：
+    -p 6379:6379 ： 端口映射，默认redis启动的是6379
+    -v $PWD/data:/data ： 将主机中当前目录下的data挂载到容器的/data
+    -v $PWD/conf/redis.conf:/home/docker/redis/conf/redis.conf ： 配置自定义redis.conf 
+# redis-cli 连接
+$ docker run -it --link redis-S --rm docker.io/redis redis-cli -h redis-S -p 6379 --raw
+    参数详情：
+    -it
+````
+
 ---  
 
-## 项目整合
+## 二、项目整合
 **1. pom引入**
 ````
     <-- 这是我们的主角 -->

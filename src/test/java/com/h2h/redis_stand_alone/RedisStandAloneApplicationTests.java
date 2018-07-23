@@ -1,5 +1,6 @@
 package com.h2h.redis_stand_alone;
 
+import com.h2h.redis_stand_alone.entity.PrintParam;
 import com.h2h.redis_stand_alone.kit.RedisKit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,16 +17,45 @@ public class RedisStandAloneApplicationTests {
 
 	@Test
 	/**
+	 *  保存
+	 */
+	public void setString() {
+		try {
+			PrintParam printParam = new PrintParam();
+			printParam.setUserId(1L);
+			printParam.setMchId(2L);
+			printParam.setStart("2012-01-01");
+			printParam.setEnd("2016-01-02");
+			redisKit.setCacheObject("printParam",printParam,-1);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+
+	}
+
+	@Test
+	/**
+	 *  保存
+	 */
+	public void getString() {
+		try {
+			Object printParam = redisKit.getCacheObject("printParam");
+			System.out.println(printParam);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+
+	}
+
+
+	@Test
+	/**
 	 * 位图操作 保存
 	 */
 	public void setBit() {
 		try {
+			//返回的是替换掉的 value
 			boolean setbit = redisKit.setbit("bit:test", 123, true);
-			if(setbit){
-				System.out.println("redis位图数据存储成功！");
-			}else{
-				System.out.println("redis抽风，数据保存失败！");
-			}
 		}catch (Exception e){
 			e.printStackTrace();
 		}

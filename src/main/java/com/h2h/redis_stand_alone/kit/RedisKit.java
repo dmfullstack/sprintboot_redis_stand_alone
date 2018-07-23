@@ -3,9 +3,14 @@ package com.h2h.redis_stand_alone.kit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.*;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -17,17 +22,34 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RedisKit {
 
+//    @Autowired
     protected RedisTemplate redisTemplate;
 
     /**
      * 格式化 redis 中 key的存储，以免出现乱码
      * @param redisTemplate
      */
+//    @Autowired(required = false)
+//    public void setRedisTemplate(RedisTemplate redisTemplate) {
+//        RedisSerializer stringSerializer = new StringRedisSerializer();
+//        redisTemplate.setKeySerializer(stringSerializer);
+//        redisTemplate.setHashKeySerializer(stringSerializer);
+//        this.redisTemplate = redisTemplate;
+//    }
+
+    /**
+     * 格式化 redis 中 key与value 的存储，以免出现乱码
+     * @decription 连接docker中redis时value也会出现乱码 使用String格式时 value存储 只能为String格式
+     * @param redisTemplate
+     */
     @Autowired(required = false)
     public void setRedisTemplate(RedisTemplate redisTemplate) {
         RedisSerializer stringSerializer = new StringRedisSerializer();
-        redisTemplate.setKeySerializer(stringSerializer);
+        GenericJackson2JsonRedisSerializer genericJackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer();
         redisTemplate.setHashKeySerializer(stringSerializer);
+        redisTemplate.setHashValueSerializer(genericJackson2JsonRedisSerializer);
+        redisTemplate.setKeySerializer(stringSerializer);
+        redisTemplate.setValueSerializer(genericJackson2JsonRedisSerializer);
         this.redisTemplate = redisTemplate;
     }
 
@@ -127,7 +149,8 @@ public class RedisKit {
      * @return            缓存键值对应的数据
      */
     public Object getCacheObject(String key) {
-        return redisTemplate.opsForValue().get(key);
+        Object o = redisTemplate.opsForValue().get(key);
+        return new ResponseEntity(o, HttpStatus.OK);
     }
 
     /**
@@ -327,5 +350,10 @@ public class RedisKit {
                 return result;
             }
         });
+    }
+
+    public void changeDatabase(int i){
+        JedisConnectionFactory connectionFactory = (JedisConnectionFactory)redisTemplate.getConnectionFactory();
+        connectionFactory.setDatabase(2);
     }
 }
